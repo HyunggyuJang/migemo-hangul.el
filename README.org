@@ -1,0 +1,19 @@
+#+title: Migemo hangul extension
+
+* What is migemo?
+Please visit https://github.com/emacs-jp/migemo for this.
+* Why hangul extension?
+There has been some problem around macOS with hangul, and Emacs couldn't escape from this: https://www.reddit.com/r/emacs/comments/fvsijm/question_about_korean_font_display_issue/
+There are many solution out there, including above link, however those have some limitation.
+- Even if you solved font rendering issue, you can't still search through hangul file name using `find-file` in Emacs.
+  Since Emacs by default use NFC characters as does Linux, there's conflicts between NFC -- what queried -- and NFD -- the actual target.
+- Fortunately, you can solve this problem by normalizing encoding system as suggested from [[https://crazia.tistory.com/entry/Emacs-Emacs-for-OSX-%EB%9D%BC%EB%8A%94-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%EC%97%90-%EA%B4%80%ED%95%B4%EC%84%9C-%EB%A7%A5%EC%9A%A9-Emacs-%EC%97%90-%ED%8A%B9%ED%99%94%EB%90%98%EB%8B%A4][here]] (in Korean).
+  But this method also isn't perfect. In a nutshell, what it does is normalize contents with NFC from NFD before read, and when it comes to save, reverts the process: from NFC to NFD then store the data to the disk.
+
+  The use case I felt annoying by sticking with it is [[https://github.com/org-roam/org-roam/issues/1423][Org roam uses NFD system for file name]], and for database, so from the Org roam perspective, it sees NFC file name and stores that link and links that link to another file. However, the real file name under the hood saved in NFD encoding; thus backlinks get broken, which the most prominent feature of [[https://github.com/org-roam/org-roam][roam]].
+
+  The thing is there might be some other package relying on NFD not NFC, and the difference between read encoding system and saved encoding system will definitely cause some problems near future, which is hard to debug anyway.
+
+So, I've gone with amending the search function in Emacs. What I've implemented is actually doesn't require [[http://0xcc.net/migemo/][migemo]] for it to function, but as I also speak Japanese and sometimes I have to write that in Emacs for academic purpose, I chose to extend migemo library.
+
+I might consider detach my library from migemo, so it can be used as a standalone.
